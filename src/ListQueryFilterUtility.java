@@ -37,6 +37,55 @@ public class ListQueryFilterUtility{
         return filtered;
     }
 
+    public static<T, R extends Comparable> List<T> orderBy(List<T> list, Function<T, R> predicate){
+        return orderByInternal(list, predicate, true);
+    }
+
+    public static<T, R extends Comparable> List<T> orderByDescending(List<T> list, Function<T, R> predicate){
+        return orderByInternal(list, predicate, false);
+    }
+
+    // Not up-to-date on my sort algorithms
+    // Doing it quick, dirty, and inefficient for now
+    private static <T, R extends Comparable> List<T> orderByInternal(List<T> list, Function<T, R> predicate, boolean ascending){
+        boolean needToSort = true;
+        while(needToSort){
+            needToSort = false;
+            for(int i = 0; i < list.size() - 1; i++){
+                T currentElement = list.get(i);
+                T nextElement = list.get(i + 1);
+
+                if (currentElement == null && nextElement == null){
+                    continue;
+                }
+
+                boolean switchElements;
+                int result;
+
+                if (currentElement == null){
+                    result = -1;
+                } else if (nextElement == null){
+                    result = 1;
+                }else{
+                    result = predicate.apply(currentElement).compareTo(predicate.apply(nextElement));
+                }
+
+                if (ascending){
+                    switchElements = result > 0;
+                }else{
+                    switchElements = result < 0;
+                }
+
+                if (switchElements){
+                    needToSort = true;
+                    list.set(i + 1, currentElement);
+                    list.set(i, nextElement);
+                }
+            }
+        }
+
+        return list;
+    }
 
 
 }

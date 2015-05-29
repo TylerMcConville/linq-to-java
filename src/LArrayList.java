@@ -22,12 +22,24 @@ public class LArrayList<T> extends ArrayList<T> {
 
     public LArrayList<T> where(Function<T, Boolean> predicate){
         List<T> filtered = ListQueryFilterUtility.where(this, predicate);
-        LArrayList<T> filteredLArrayList = new LArrayList<>();
-        for (T element : filtered){
-            filteredLArrayList.add(element);
+        return copyList(filtered);
+    }
+
+    public <R extends Comparable> LArrayList<T> orderBy(Function<T, R> predicate){
+        return copyList(ListQueryFilterUtility.orderBy(this, predicate));
+    }
+
+    public <R extends Comparable> LArrayList<T> orderByDescending(Function<T, R> predicate){
+        return copyList(ListQueryFilterUtility.orderByDescending(this, predicate));
+    }
+
+    private static <T> LArrayList<T> copyList(List<T> source){
+        LArrayList<T> destination = new LArrayList<>();
+        for(T element : source){
+            destination.add(element);
         }
 
-        return filteredLArrayList;
+        return destination;
     }
 
 }

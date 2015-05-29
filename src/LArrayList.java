@@ -6,6 +6,10 @@ import java.util.function.Function;
  * Created by tmcconville on 5/29/2015.
  */
 public class LArrayList<T> extends ArrayList<T> {
+    //TODO look into default methods for interfaces. Could define an interface that
+    // defines every one of these methods by default except for copyList.
+    // That way, to "extend" a List implementation, you'd just need to implement the new interface
+    // and provide an implementation of copyList
 
     public T first(Function<T, Boolean> predicate) throws ElementNotFoundException {
         return ListQueryFilterUtility.first(this, predicate);

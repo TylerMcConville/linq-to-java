@@ -12,12 +12,7 @@ public class LArrayList<T> extends ArrayList<T> {
     }
 
     public T firstOrDefault(Function<T, Boolean> predicate){
-        try{
-            return first(predicate);
-        }
-        catch(ElementNotFoundException e){
-            return null;
-        }
+        return ListQueryFilterUtility.firstOrDefault(this, predicate);
     }
 
     public LArrayList<T> where(Function<T, Boolean> predicate){
@@ -39,6 +34,10 @@ public class LArrayList<T> extends ArrayList<T> {
 
     public <R extends Comparable> R max(Function<T, R> predicate){
         return ListQueryFilterUtility.max(this, predicate);
+    }
+
+    public boolean any(Function<T, Boolean> predicate){
+        return ListQueryFilterUtility.any(this, predicate);
     }
 
     private static <T> LArrayList<T> copyList(List<T> source){

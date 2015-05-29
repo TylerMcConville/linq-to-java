@@ -7,10 +7,18 @@ import java.util.function.Function;
  */
 public class ListQueryFilterUtility{
 
+    //TODO any, all, none, select, thenby, thenbydescending, selectmany
+    // and whatever else sounds cool
+
+    //TODO revisit null checking strategy. SHOULD we just let an NPE in a predicate bubble up?
+
     public static <T> T first(List<T> list, Function<T, Boolean> predicate) throws ElementNotFoundException{
         for(T element : list){
-            if(predicate.apply(element)){
-                return element;
+            try{
+                if(predicate.apply(element)){
+                    return element;
+                }
+            } catch(NullPointerException ignored){
             }
         }
 
@@ -29,8 +37,11 @@ public class ListQueryFilterUtility{
     public static <T> List<T> where(List<T> list, Function<T, Boolean> predicate){
         List<T> filtered = new ArrayList<>();
         for (T element : list){
-            if (predicate.apply(element)){
-                filtered.add(element);
+            try{
+                if (predicate.apply(element)){
+                    filtered.add(element);
+                }
+            } catch(NullPointerException ignored){
             }
         }
 
@@ -53,6 +64,19 @@ public class ListQueryFilterUtility{
         return minOrMaxInternal(list, predicate, true);
     }
 
+    public static <T> boolean any(List<T> list, Function<T, Boolean> predicate){
+        for (T element : list){
+            try{
+                if (predicate.apply(element)){
+                    return true;
+                }
+            } catch(NullPointerException ignored){
+            }
+        }
+
+        return false;
+    }
+
     private static<T, R extends Comparable> R minOrMaxInternal(List<T> list, Function<T, R> predicate, boolean min){
         R currentBest = null;
         for(T element : list){
@@ -62,8 +86,9 @@ public class ListQueryFilterUtility{
 
             if (currentBest == null){
                 currentBest = predicate.apply(element);
+                continue;
             }
-
+            //TODO try/catch
             R currentPredicateResult = predicate.apply(element);
             int result = currentBest.compareTo(currentPredicateResult);
 
@@ -97,7 +122,14 @@ public class ListQueryFilterUtility{
                 } else if (nextElement == null){
                     result = 1;
                 }else{
-                    result = predicate.apply(currentElement).compareTo(predicate.apply(nextElement));
+                    R currentPredicateResult =  predicate.apply(currentElement);
+
+                    R nextPredicateResult = predicate.apply(nextElement);
+
+                    // Purposely not try/catching a NullPointer here
+                    // This could error in the case of comparing two complex comparable objects if one of those objects is null
+                    // But I think it should be the job of the person that implements the Comparable interface to ensure that a NPE is not thrown in that case
+                    result = currentPredicateResult.compareTo(nextPredicateResult);
                 }
 
                 if (ascending){

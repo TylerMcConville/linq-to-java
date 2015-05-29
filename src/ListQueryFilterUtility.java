@@ -45,6 +45,36 @@ public class ListQueryFilterUtility{
         return orderByInternal(list, predicate, false);
     }
 
+    public static <T, R extends Comparable> R max(List<T> list, Function<T, R> predicate){
+        return minOrMaxInternal(list, predicate, false);
+    }
+
+    public static <T, R extends Comparable> R min(List<T> list, Function<T, R> predicate){
+        return minOrMaxInternal(list, predicate, true);
+    }
+
+    private static<T, R extends Comparable> R minOrMaxInternal(List<T> list, Function<T, R> predicate, boolean min){
+        R currentBest = null;
+        for(T element : list){
+            if (element == null){
+                continue;
+            }
+
+            if (currentBest == null){
+                currentBest = predicate.apply(element);
+            }
+
+            R currentPredicateResult = predicate.apply(element);
+            int result = currentBest.compareTo(currentPredicateResult);
+
+            if ((!min && result < 0) || (min && result > 0)){
+                currentBest = currentPredicateResult;
+            }
+        }
+
+        return currentBest;
+    }
+
     // Not up-to-date on my sort algorithms
     // Doing it quick, dirty, and inefficient for now
     private static <T, R extends Comparable> List<T> orderByInternal(List<T> list, Function<T, R> predicate, boolean ascending){

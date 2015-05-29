@@ -33,6 +33,14 @@ public class LArrayList<T> extends ArrayList<T> {
         return copyList(ListQueryFilterUtility.orderByDescending(this, predicate));
     }
 
+    public <R extends Comparable> R min(Function<T, R> predicate){
+        return ListQueryFilterUtility.min(this, predicate);
+    }
+
+    public <R extends Comparable> R max(Function<T, R> predicate){
+        return ListQueryFilterUtility.max(this, predicate);
+    }
+
     private static <T> LArrayList<T> copyList(List<T> source){
         LArrayList<T> destination = new LArrayList<>();
         for(T element : source){

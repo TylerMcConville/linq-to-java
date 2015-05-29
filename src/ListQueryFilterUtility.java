@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -23,6 +24,17 @@ public class ListQueryFilterUtility{
         catch(ElementNotFoundException e){
             return null;
         }
+    }
+
+    public static <T> List<T> where(List<T> list, Function<T, Boolean> predicate){
+        List<T> filtered = new ArrayList<>();
+        for (T element : list){
+            if (predicate.apply(element)){
+                filtered.add(element);
+            }
+        }
+
+        return filtered;
     }
 
 

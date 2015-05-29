@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -17,6 +18,16 @@ public class LArrayList<T> extends ArrayList<T> {
         catch(ElementNotFoundException e){
             return null;
         }
+    }
+
+    public LArrayList<T> where(Function<T, Boolean> predicate){
+        List<T> filtered = ListQueryFilterUtility.where(this, predicate);
+        LArrayList<T> filteredLArrayList = new LArrayList<>();
+        for (T element : filtered){
+            filteredLArrayList.add(element);
+        }
+
+        return filteredLArrayList;
     }
 
 }

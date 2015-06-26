@@ -6,8 +6,30 @@ import java.util.function.Function;
  */
 public interface ILList<T, L extends List<T>>{
 
-    //TODO none, select, thenby, thenbydescending, selectmany, union
+    //TODO thenby, thenbydescending, selectmany, union
     // and whatever else sounds cool
+
+    //TODO is there a better way to do this?
+    // Would need to find another way of instantiating the implementing class,
+    // but with a generic type of S rather than T
+    // Feels -very- bad to create a new instance of L and cast it to LS (but maybe it isn't bad? I'm honestly not sure)
+    default <LS extends List<S>, S> LS select(Function<T, S> predicate){
+        L list = (L)this;
+        LS values = null;
+        try {
+            values = (LS)this.getClass().newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        for (T element : list){
+            S value = predicate.apply(element);
+            values.add(value);
+        }
+
+        return values;
+    }
 
     default T first(Function<T, Boolean> predicate) throws ElementNotFoundException{
         L list = (L)this;

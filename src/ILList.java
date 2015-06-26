@@ -86,6 +86,10 @@ public interface ILList<T, L extends List<T>>{
         return true;
     }
 
+    default boolean none(Function<T, Boolean> predicate){
+        return any(predicate) == false;
+    }
+
     default <R extends Comparable> R minOrMaxInternal(Function<T, R> predicate, boolean min){
         L list = (L)this;
         R currentBest = null;

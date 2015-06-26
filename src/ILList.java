@@ -6,19 +6,14 @@ import java.util.function.Function;
  */
 public interface ILList<T, L extends List<T>>{
 
-    //TODO any, all, none, select, thenby, thenbydescending, selectmany, union
+    //TODO none, select, thenby, thenbydescending, selectmany, union
     // and whatever else sounds cool
-
-    //TODO revisit null checking strategy. SHOULD we just let an NPE in a predicate bubble up?
 
     default T first(Function<T, Boolean> predicate) throws ElementNotFoundException{
         L list = (L)this;
         for(T element : list){
-            try{
-                if(predicate.apply(element)){
-                    return element;
-                }
-            } catch(NullPointerException ignored){
+            if(predicate.apply(element)){
+                return element;
             }
         }
 
@@ -39,18 +34,14 @@ public interface ILList<T, L extends List<T>>{
         L filtered = null;
         try {
             filtered = (L)this.getClass().newInstance();
-            //TODO
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         for (T element : list){
-            try{
-                if (predicate.apply(element)){
-                    filtered.add(element);
-                }
-            } catch(NullPointerException ignored){
+            if (predicate.apply(element)){
+                filtered.add(element);
             }
         }
 
@@ -76,15 +67,23 @@ public interface ILList<T, L extends List<T>>{
     default boolean any(Function<T, Boolean> predicate){
         L list = (L)this;
         for (T element : list){
-            try{
-                if (predicate.apply(element)){
-                    return true;
-                }
-            } catch(NullPointerException ignored){
+            if (predicate.apply(element)){
+                return true;
             }
         }
 
         return false;
+    }
+
+    default boolean all(Function<T, Boolean> predicate){
+        L list = (L)this;
+        for (T element : list){
+            if (predicate.apply(element) == false){
+                return false;
+            }
+        }
+
+        return true;
     }
 
     default <R extends Comparable> R minOrMaxInternal(Function<T, R> predicate, boolean min){

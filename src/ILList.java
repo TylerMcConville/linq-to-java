@@ -1,18 +1,18 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 /**
- * Created by tmcconville on 5/29/2015.
+ * Created by tmcconville on 6/3/2015.
  */
-public class ListQueryFilterUtility{
+public interface ILList<T, L extends List<T>>{
 
     //TODO any, all, none, select, thenby, thenbydescending, selectmany, union
     // and whatever else sounds cool
 
     //TODO revisit null checking strategy. SHOULD we just let an NPE in a predicate bubble up?
 
-    public static <T> T first(List<T> list, Function<T, Boolean> predicate) throws ElementNotFoundException{
+    default T first(Function<T, Boolean> predicate) throws ElementNotFoundException{
+        L list = (L)this;
         for(T element : list){
             try{
                 if(predicate.apply(element)){
@@ -25,17 +25,26 @@ public class ListQueryFilterUtility{
         throw new ElementNotFoundException();
     }
 
-    public static <T> T firstOrDefault(List<T> list, Function<T, Boolean> predicate){
+    default T firstOrDefault(Function<T, Boolean> predicate){
         try{
-            return first(list, predicate);
+            return first(predicate);
         }
         catch(ElementNotFoundException e){
             return null;
         }
     }
 
-    public static <T> List<T> where(List<T> list, Function<T, Boolean> predicate){
-        List<T> filtered = new ArrayList<>();
+    default L where(Function<T, Boolean> predicate){
+        L list = (L)this;
+        L filtered = null;
+        try {
+            filtered = (L)this.getClass().newInstance();
+            //TODO
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
         for (T element : list){
             try{
                 if (predicate.apply(element)){
@@ -48,23 +57,24 @@ public class ListQueryFilterUtility{
         return filtered;
     }
 
-    public static<T, R extends Comparable> List<T> orderBy(List<T> list, Function<T, R> predicate){
-        return orderByInternal(list, predicate, true);
+    default<R extends Comparable> L orderBy(Function<T, R> predicate){
+        return orderByInternal(predicate, true);
     }
 
-    public static<T, R extends Comparable> List<T> orderByDescending(List<T> list, Function<T, R> predicate){
-        return orderByInternal(list, predicate, false);
+    default<R extends Comparable> L orderByDescending(Function<T, R> predicate){
+        return orderByInternal(predicate, false);
     }
 
-    public static <T, R extends Comparable> R max(List<T> list, Function<T, R> predicate){
-        return minOrMaxInternal(list, predicate, false);
+    default <R extends Comparable> R max(Function<T, R> predicate){
+        return minOrMaxInternal(predicate, false);
     }
 
-    public static <T, R extends Comparable> R min(List<T> list, Function<T, R> predicate){
-        return minOrMaxInternal(list, predicate, true);
+    default <R extends Comparable> R min(Function<T, R> predicate){
+        return minOrMaxInternal(predicate, true);
     }
 
-    public static <T> boolean any(List<T> list, Function<T, Boolean> predicate){
+    default boolean any(Function<T, Boolean> predicate){
+        L list = (L)this;
         for (T element : list){
             try{
                 if (predicate.apply(element)){
@@ -77,7 +87,8 @@ public class ListQueryFilterUtility{
         return false;
     }
 
-    private static<T, R extends Comparable> R minOrMaxInternal(List<T> list, Function<T, R> predicate, boolean min){
+    default <R extends Comparable> R minOrMaxInternal(Function<T, R> predicate, boolean min){
+        L list = (L)this;
         R currentBest = null;
         for(T element : list){
             if (element == null){
@@ -102,7 +113,8 @@ public class ListQueryFilterUtility{
 
     // Not up-to-date on my sort algorithms
     // Doing it quick, dirty, and inefficient for now
-    private static <T, R extends Comparable> List<T> orderByInternal(List<T> list, Function<T, R> predicate, boolean ascending){
+    default <R extends Comparable> L orderByInternal(Function<T, R> predicate, boolean ascending){
+        L list = (L)this;
         boolean needToSort = true;
         while(needToSort){
             needToSort = false;

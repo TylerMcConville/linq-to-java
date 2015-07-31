@@ -6,8 +6,15 @@ import java.util.function.Function;
  */
 public interface ILList<T, L extends List<T>>{
 
-    //TODO thenby, thenbydescending, selectmany, union
+    //TODO thenby, thenbydescending, selectmany
     // and whatever else sounds cool
+
+    default L addRange(List<T> second){
+        L list = (L)this;
+
+        second.forEach(list::add);
+        return list;
+    }
 
     default L union(List<T> second){
         L list = (L)this;

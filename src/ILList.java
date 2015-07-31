@@ -9,6 +9,31 @@ public interface ILList<T, L extends List<T>>{
     //TODO thenby, thenbydescending, selectmany
     // and whatever else sounds cool
 
+    //TODO many of these methods have a return type (usually a list)
+    // but also have side effects on the original list
+    // Should we clone the original list before performing any operations on it?
+
+    // These generics are getting ridiculous
+    // I think this is only working because of type erasure (instantiating a new LS that's the same class as L with a different generic type)
+    default <LS extends List<S> & ILList<S, List<S>>, S> LS selectMany(Function<T, List<S>> selector){
+        L list = (L)this;
+        LS selected = null;
+        try {
+            selected = (LS) this.getClass().newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        for (T element : list){
+            List<S> individual = selector.apply(element);
+            selected.addRange(individual);
+        }
+
+        return selected;
+    }
+
     default L addRange(List<T> second){
         L list = (L)this;
 
@@ -16,8 +41,8 @@ public interface ILList<T, L extends List<T>>{
         return list;
     }
 
+    // TODO there's probably a more efficient way to do this
     default L union(List<T> second){
-        L list = (L)this;
         L unioned = null;
         try {
             unioned = (L) this.getClass().newInstance();
@@ -27,14 +52,8 @@ public interface ILList<T, L extends List<T>>{
             e.printStackTrace();
         }
 
-        //TODO condense these two loops so we're not duplicating code
-        for (T element : list){
-            if (unioned.contains(element) == false){
-                unioned.add(element);
-            }
-        }
 
-        for (T element : second){
+        for (T element : addRange(second)){
             if (unioned.contains(element) == false){
                 unioned.add(element);
             }
@@ -75,7 +94,7 @@ public interface ILList<T, L extends List<T>>{
     // Would need to find another way of instantiating the implementing class,
     // but with a generic type of S rather than T
     // Feels -very- bad to create a new instance of L and cast it to LS (but maybe it isn't bad? I'm honestly not sure)
-    default <LS extends List<S>, S> LS select(Function<T, S> predicate){
+    default <LS extends List<S> & ILList<S, List<S>>, S> LS select(Function<T, S> predicate){
         L list = (L)this;
         LS values = null;
         try {
@@ -174,6 +193,7 @@ public interface ILList<T, L extends List<T>>{
         return any(predicate) == false;
     }
 
+    // TODO shouldn't be publicly accessible, but has to be due to implementing these as default methods. Alternatives?
     default <R extends Comparable> R minOrMaxInternal(Function<T, R> predicate, boolean min){
         L list = (L)this;
         R currentBest = null;
@@ -198,6 +218,7 @@ public interface ILList<T, L extends List<T>>{
         return currentBest;
     }
 
+    // TODO shouldn't be publicly accessible, but has to be due to implementing these as default methods. Alternatives?
     // Not up-to-date on my sort algorithms
     // Doing it quick, dirty, and inefficient for now
     default <R extends Comparable> L orderByInternal(Function<T, R> predicate, boolean ascending){

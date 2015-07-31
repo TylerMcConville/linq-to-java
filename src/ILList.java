@@ -9,6 +9,33 @@ public interface ILList<T, L extends List<T>>{
     //TODO thenby, thenbydescending, selectmany, union
     // and whatever else sounds cool
 
+    default L union(List<T> second){
+        L list = (L)this;
+        L unioned = null;
+        try {
+            unioned = (L) this.getClass().newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        //TODO condense these two loops so we're not duplicating code
+        for (T element : list){
+            if (unioned.contains(element) == false){
+                unioned.add(element);
+            }
+        }
+
+        for (T element : second){
+            if (unioned.contains(element) == false){
+                unioned.add(element);
+            }
+        }
+
+        return unioned;
+    }
+
     // I can't find a clean way to implement this
     // In C#, you can do something like...
     // myList.OfType<String>()

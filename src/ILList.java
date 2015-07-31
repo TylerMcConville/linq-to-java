@@ -9,6 +9,34 @@ public interface ILList<T, L extends List<T>>{
     //TODO thenby, thenbydescending, selectmany, union
     // and whatever else sounds cool
 
+    // I can't find a clean way to implement this
+    // In C#, you can do something like...
+    // myList.OfType<String>()
+    // However, it doesn't look like Java supports that syntax
+    // You could pass the type you want as a parameter (see current implementation)
+    // But there's no way to enforce that "Sa" is of type "S"
+    // So I think it's better to leave this off for now
+//    default <LS extends List<S>, S> LS ofType(Class Sa){
+//        L list = (L)this;
+//        LS values = null;
+//        try{
+//            values = (LS)this.getClass().newInstance();
+//        }
+//        catch(InstantiationException e){
+//            e.printStackTrace();
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
+//
+//        for(T element : list){
+//            if (element.getClass() == Sa){
+//                values.add((S)element);
+//            }
+//        }
+//
+//        return values;
+//    }
+
     //TODO is there a better way to do this?
     // Would need to find another way of instantiating the implementing class,
     // but with a generic type of S rather than T

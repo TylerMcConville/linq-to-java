@@ -6,7 +6,7 @@ import java.util.function.Function;
  */
 public interface ILList<T, L extends List<T>>{
 
-    //TODO thenby, thenbydescending, selectmany
+    //TODO thenby, thenbydescending
     // and whatever else sounds cool
 
     //TODO many of these methods have a return type (usually a list)
